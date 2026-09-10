@@ -1,634 +1,938 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>爆旋陀螺 X AI Bey-Coach (支援 UX-15 套裝與 Hinfok BeyDB)</title>
+  <title>爆旋陀螺 X AI 專業對戰教練 | Beyblade X Battle Coach</title>
   <style>
     :root {
-      --bg-color: #0b0f19;
-      --card-bg: #161f30;
-      --accent-cyan: #00f2fe;
-      --accent-gold: #ffb703;
-      --accent-red: #ff2a5f;
-      --accent-green: #00e676;
-      --text-main: #ffffff;
-      --text-sub: #b0c4de;
-      --font-family: "PingFang HK", "Chalkboard SE", "Microsoft JhengHei", sans-serif;
+      --bg-color: #0a0e17;
+      --card-bg: rgba(18, 25, 41, 0.85);
+      --card-border: rgba(0, 240, 255, 0.25);
+      --primary-cyan: #00f0ff;
+      --accent-gold: #ffd700;
+      --neon-red: #ff0055;
+      --neon-green: #00ff88;
+      --text-main: #f0f4f8;
+      --text-muted: #8a99ad;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
       color: var(--text-main);
       font-family: var(--font-family);
-      line-height: 1.6;
-      padding: 15px;
+      min-height: 100vh;
+      padding: 16px;
       display: flex;
       justify-content: center;
     }
 
-    .container {
+    .app-container {
       width: 100%;
-      max-width: 820px;
-      background: rgba(22, 31, 48, 0.9);
-      border: 2px solid var(--accent-cyan);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 30px rgba(0, 242, 254, 0.25);
-      backdrop-filter: blur(10px);
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
+    /* Header Styling */
     header {
       text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .logo-title {
-      font-size: 1.8rem;
-      font-weight: 900;
-      color: var(--accent-cyan);
-      text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
-    }
-
-    .db-badge {
-      display: inline-block;
-      margin-top: 5px;
-      padding: 4px 12px;
-      background: rgba(255, 183, 3, 0.15);
-      border: 1px solid var(--accent-gold);
-      border-radius: 15px;
-      font-size: 0.85rem;
-      color: var(--accent-gold);
-      font-weight: bold;
-    }
-
-    .input-section {
-      background: rgba(0, 0, 0, 0.35);
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 20px 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      backdrop-filter: blur(10px);
       position: relative;
+      overflow: hidden;
     }
 
-    label {
-      display: block;
-      font-size: 1rem;
-      font-weight: bold;
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-cyan), var(--accent-gold), var(--neon-red));
+    }
+
+    .logo-badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid var(--accent-gold);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 1.5px;
       margin-bottom: 8px;
-      color: var(--accent-cyan);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Search Box & Suggestions */
+    .search-section {
+      position: relative;
     }
 
     .search-box-wrapper {
-      position: relative;
-      margin-bottom: 15px;
-    }
-
-    .search-box {
       display: flex;
       gap: 10px;
     }
 
-    input[type="text"] {
+    .search-input-container {
+      position: relative;
       flex: 1;
-      padding: 12px 15px;
-      font-size: 1.05rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(10, 14, 23, 0.9);
+      border: 1.5px solid var(--card-border);
       border-radius: 12px;
-      border: 2px solid var(--accent-cyan);
-      background: #0d1424;
       color: #fff;
+      font-size: 1rem;
       outline: none;
+      transition: all 0.3s ease;
     }
 
     input[type="text"]:focus {
-      box-shadow: 0 0 12px var(--accent-cyan);
+      border-color: var(--primary-cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
     }
 
-    button.btn-analyze {
-      padding: 12px 20px;
-      font-size: 1.05rem;
-      font-weight: bold;
-      background: linear-gradient(135deg, #00f2fe, #4facfe);
-      color: #000;
+    .search-btn {
+      padding: 0 24px;
+      background: linear-gradient(135deg, var(--primary-cyan), #0088cc);
       border: none;
       border-radius: 12px;
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
       cursor: pointer;
-      white-space: nowrap;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
     }
 
-    .suggestions-list {
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+    }
+
+    /* Auto Suggestion Dropdown */
+    .suggestions-dropdown {
       position: absolute;
-      top: 100%;
+      top: 105%;
       left: 0;
       right: 0;
-      background: #111827;
-      border: 2px solid var(--accent-cyan);
+      background: #0f172a;
+      border: 1px solid var(--primary-cyan);
       border-radius: 12px;
-      margin-top: 5px;
-      max-height: 280px;
+      max-height: 260px;
       overflow-y: auto;
-      z-index: 1000;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+      z-index: 100;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
       display: none;
     }
 
     .suggestion-item {
-      padding: 12px 15px;
-      font-size: 0.95rem;
+      padding: 12px 16px;
       cursor: pointer;
-      border-bottom: 1px solid #1f2937;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.2s;
     }
 
     .suggestion-item:hover {
-      background: rgba(0, 242, 254, 0.2);
-      color: #fff;
+      background: rgba(0, 240, 255, 0.15);
     }
 
-    .suggestion-tag {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: #374151;
+    .suggestion-code {
       color: var(--accent-gold);
+      font-weight: bold;
+      font-size: 0.85rem;
     }
 
-    .presets-title {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      margin-bottom: 8px;
-    }
-
-    .preset-buttons {
+    /* Preset Buttons */
+    .presets-container {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-    }
-
-    .btn-preset {
-      background: #1e2c42;
-      border: 1px solid #3a506b;
-      color: #ffffff;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 0.88rem;
-      cursor: pointer;
-    }
-
-    .btn-preset:hover {
-      background: var(--accent-cyan);
-      color: #000;
-    }
-
-    .deck-set-box {
-      background: rgba(255, 183, 3, 0.1);
-      border: 2px dashed var(--accent-gold);
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 20px;
-      display: none;
-    }
-
-    .deck-set-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--accent-gold);
-      margin-bottom: 10px;
-    }
-
-    .deck-combo-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .deck-combo-btn {
-      background: #1e2c42;
-      border: 1px solid var(--accent-cyan);
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 10px;
-      text-align: left;
-      cursor: pointer;
-      font-size: 0.95rem;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
     }
 
-    .deck-combo-btn:hover {
-      background: var(--accent-cyan);
+    .preset-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .preset-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-chip:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--primary-cyan);
+      color: #fff;
+    }
+
+    /* Deck Set View (3對戰套裝) */
+    .deck-banner {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 0, 85, 0.15));
+      border: 1px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 10px;
+    }
+
+    .deck-title {
+      font-size: 1.3rem;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .deck-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .deck-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s;
+    }
+
+    .deck-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary-cyan);
+    }
+
+    .deck-bey-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .deck-analyze-btn {
+      margin-top: 12px;
+      padding: 8px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--primary-cyan);
+      color: var(--primary-cyan);
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .deck-analyze-btn:hover {
+      background: var(--primary-cyan);
       color: #000;
     }
 
-    .result-card {
-      background: #111827;
-      border-radius: 15px;
-      padding: 20px;
-      border: 1px solid #2d3748;
-      display: none;
+    /* Analysis Dashboard */
+    .analysis-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .result-card.active {
-      display: block;
-      animation: fadeIn 0.4s ease-in-out;
+    .bey-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .bey-title-group h2 {
+      font-size: 1.6rem;
+      color: #fff;
     }
 
-    .combo-header {
-      font-size: 1.5rem;
+    .bey-code-badge {
+      display: inline-block;
+      font-size: 0.85rem;
+      background: var(--primary-cyan);
+      color: #000;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .specs-pills {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.08);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .pill span {
       color: var(--accent-gold);
-      border-bottom: 2px dashed var(--accent-gold);
-      padding-bottom: 8px;
-      margin-bottom: 15px;
-      text-align: center;
       font-weight: bold;
     }
 
-    .section-block { margin-bottom: 20px; }
-
+    /* Parts Grid */
     .section-title {
-      font-size: 1.15rem;
-      font-weight: bold;
-      color: var(--accent-cyan);
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      color: var(--primary-cyan);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
     }
 
     .parts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    .part-item {
-      background: #1a2436;
-      padding: 12px;
+    .part-box {
+      background: rgba(10, 14, 23, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 3px solid var(--primary-cyan);
       border-radius: 10px;
-      border-left: 4px solid var(--accent-cyan);
+      padding: 14px;
     }
 
-    .part-label { font-size: 0.85rem; color: var(--text-sub); display: block; }
-    .part-name { font-size: 1rem; font-weight: bold; color: #fff; }
+    .part-type {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-    .pros-cons {
+    .part-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      margin: 4px 0 8px 0;
+    }
+
+    .part-detail {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    /* Pros & Cons Section */
+    .pros-cons-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    @media (max-width: 600px) {
-      .pros-cons { grid-template-columns: 1fr; }
+    .pro-box, .con-box {
+      background: rgba(10, 14, 23, 0.6);
+      border-radius: 12px;
+      padding: 16px;
     }
 
-    .pro-box {
-      background: rgba(0, 230, 118, 0.1);
-      border: 1px solid var(--accent-green);
-      padding: 12px;
-      border-radius: 10px;
+    .pro-box { border: 1px solid rgba(0, 255, 136, 0.3); }
+    .con-box { border: 1px solid rgba(255, 0, 85, 0.3); }
+
+    .pro-box .section-title { color: var(--neon-green); }
+    .con-box .section-title { color: var(--neon-red); }
+
+    .feature-list {
+      list-style: none;
+      font-size: 0.9rem;
     }
 
-    .con-box {
-      background: rgba(255, 42, 95, 0.1);
-      border: 1px solid var(--accent-red);
-      padding: 12px;
-      border-radius: 10px;
+    .feature-list li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 20px;
+      line-height: 1.4;
     }
 
-    .pro-title { color: var(--accent-green); font-weight: bold; margin-bottom: 5px; }
-    .con-title { color: var(--accent-red); font-weight: bold; margin-bottom: 5px; }
+    .pro-box li::before { content: '✔'; position: absolute; left: 0; color: var(--neon-green); }
+    .con-box li::before { content: '✖'; position: absolute; left: 0; color: var(--neon-red); }
 
-    ul { padding-left: 18px; font-size: 0.92rem; }
-    li { margin-bottom: 5px; }
-
-    .counter-card {
-      background: #1a2436;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      border-left: 4px solid var(--accent-gold);
+    /* Tactical Advice Section */
+    .tactics-box {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(10, 14, 23, 0.9));
+      border: 1px solid var(--primary-cyan);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 24px;
     }
 
-    .counter-type { font-size: 0.95rem; font-weight: bold; color: var(--accent-gold); }
+    .tactics-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
 
-    .hinfok-link-btn {
-      display: block;
-      width: 100%;
+    .tactic-tag {
+      background: rgba(0, 240, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #fff;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+    }
+
+    /* Counter Combos */
+    .counter-box {
+      background: rgba(10, 14, 23, 0.6);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .counter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .counter-item {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .counter-item-name {
+      font-weight: bold;
+      color: var(--accent-gold);
+    }
+
+    /* BeyDB Citation Banner */
+    .beydb-cite-card {
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px dashed var(--primary-cyan);
+      border-radius: 12px;
+      padding: 16px;
       text-align: center;
-      margin-top: 15px;
-      padding: 10px;
-      background: linear-gradient(135deg, #ffb703, #fb8500);
+      margin-top: 20px;
+    }
+
+    .beydb-cite-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .beydb-btn {
+      display: inline-block;
+      padding: 8px 20px;
+      background: var(--primary-cyan);
       color: #000;
       font-weight: bold;
       text-decoration: none;
-      border-radius: 10px;
-    }
-
-    .alert-box {
-      background: rgba(255, 183, 3, 0.15);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 15px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 25px;
+      border-radius: 8px;
       font-size: 0.85rem;
-      color: var(--text-sub);
+      transition: all 0.2s;
     }
 
-    footer a { color: var(--accent-cyan); text-decoration: none; font-weight: bold; }
+    .beydb-btn:hover {
+      background: #fff;
+      box-shadow: 0 0 15px var(--primary-cyan);
+    }
+
+    /* Fallback / Not Found View */
+    .not-found-card {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,0,85,0.4);
+      border-radius: 16px;
+    }
+
+    .not-found-card h3 {
+      color: var(--neon-red);
+      margin-bottom: 10px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.4rem; }
+      .search-box-wrapper { flex-direction: column; }
+      .search-btn { padding: 12px; }
+      .bey-header { flex-direction: column; gap: 8px; }
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <div class="logo-title">⚡ AI Bey-Coach ⚡</div>
-    <div class="db-badge">🌐 首要數據庫：Hinfok BeyDB (beys.hinfok.com)</div>
-  </header>
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div class="logo-badge">BEYBLADE X AI COACH</div>
+      <h1>爆旋陀螺 X 專業對戰教練</h1>
+      <p class="subtitle">數據源自 Hinfok BeyDB 權威資料庫，提供即時組件拆解與戰術解析</p>
+    </header>
 
-  <main>
-    <div class="input-section">
-      <label for="comboInput">🎯 輸入你的陀螺組合（支援 UX-15、BX 編號或配件）：</label>
+    <!-- Search Section -->
+    <div class="search-section">
       <div class="search-box-wrapper">
-        <div class="search-box">
-          <input type="text" id="comboInput" placeholder="例如輸入：UX-15, Shark Scale, 4-50 UF..." autocomplete="off">
-          <button class="btn-analyze" onclick="analyzeCombo()">分析組合</button>
+        <div class="search-input-container">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="輸入產品編號 (例如 UX-15, BX-35, BX-23) 或陀螺名稱 (如 黑龜, Wizard Rod)..."
+            autocomplete="off"
+          />
+          <div id="suggestions" class="suggestions-dropdown"></div>
         </div>
-        <div id="suggestionsList" class="suggestions-list"></div>
-      </div>
-
-      <div class="presets-title">💡 熱門與新套裝（點擊快速測試）：</div>
-      <div class="preset-buttons">
-        <button class="btn-preset" onclick="setPreset('UX-15')">🦈 [UX-15] 烈鯊鱗甲 3對戰套裝</button>
-        <button class="btn-preset" onclick="setPreset('Shark Scale 4-50 UF')">🦈 Shark Scale 4-50UF</button>
-        <button class="btn-preset" onclick="setPreset('Phoenix Wing 9-60 GF')">🔥 [BX-23] 鳳凰翼 9-60GF</button>
-        <button class="btn-preset" onclick="setPreset('Wizard Rod 5-70 B')">🛡️ [UX-03] 嚮導魔杖 5-70B</button>
+        <button class="search-btn" onclick="handleSearch()">AI 分析</button>
       </div>
     </div>
 
-    <!-- 3對戰套裝 (Deck Set) 選擇卡片 -->
-    <div id="deckSetBox" class="deck-set-box">
-      <div class="deck-set-title" id="deckSetTitle">📦 套裝包含以下 3 款陀螺：</div>
-      <div class="deck-combo-list" id="deckComboList"></div>
+    <!-- Preset Shortcuts -->
+    <div class="presets-container">
+      <span class="preset-label">熱門推薦:</span>
+      <button class="preset-chip" onclick="quickSelect('UX-15')">🔥 UX-15 (3對戰套裝)</button>
+      <button class="preset-chip" onclick="quickSelect('BX-35')">🐢 BX-35 (Black Shell 黑龜)</button>
+      <button class="preset-chip" onclick="quickSelect('UX-03')">Wizard Rod (UX-03)</button>
+      <button class="preset-chip" onclick="quickSelect('BX-23')">鳳凰翼 (BX-23)</button>
+      <button class="preset-chip" onclick="quickSelect('UX-01')">Dran Buster (UX-01)</button>
     </div>
 
-    <!-- 分析結果卡片 -->
-    <div id="resultCard" class="result-card">
-      <div id="comboTitle" class="combo-header">-</div>
+    <!-- Main Output Area -->
+    <main id="outputContainer">
+      <!-- Content populated dynamically by JS -->
+    </main>
 
-      <div class="section-block">
-        <div class="section-title">🔍 1. 陀螺配件拆解 (Hinfok BeyDB 數據規格)</div>
-        <div class="parts-grid">
-          <div class="part-item">
-            <span class="part-label">Blade (攻擊環)</span>
-            <span class="part-name" id="bladeInfo">-</span>
-          </div>
-          <div class="part-item">
-            <span class="part-label">Ratchet (棘輪)</span>
-            <span class="part-name" id="ratchetInfo">-</span>
-          </div>
-          <div class="part-item">
-            <span class="part-label">Bit (軸心)</span>
-            <span class="part-name" id="bitInfo">-</span>
-          </div>
-        </div>
-      </div>
+    <!-- Footer -->
+    <footer style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 10px;">
+      本工具核心數據嚴格參照 <a href="https://beys.hinfok.com/" target="_blank" style="color: var(--primary-cyan); text-decoration: none;">Hinfok BeyDB</a> 官方標準數據。
+    </footer>
+  </div>
 
-      <div class="section-block">
-        <div class="section-title">⭐ 2. 核心特點與優缺點分析</div>
-        <div class="pros-cons">
-          <div class="pro-box">
-            <div class="pro-title">✅ 優勢與特點</div>
-            <ul id="prosList"></ul>
-          </div>
-          <div class="con-box">
-            <div class="con-title">⚠️ 弱點與死穴</div>
-            <ul id="consList"></ul>
-          </div>
-        </div>
-      </div>
+  <script>
+    /* ==========================================================================
+       1. Embedded Database (Hinfok BeyDB Ref. Specs)
+       ========================================================================== */
+    const BEY_DB = {
+      blades: {
+        "black shell": { name: "黑龜 (Black Shell)", code: "BX-35", weight: "32.4g", spin: "右迴旋 (Right)", desc: "圓滑下勾防禦型金屬刃，防禦角度極佳，能顯著減緩正面猛烈撞擊力。" },
+        "phoenix wing": { name: "鳳凰翼 (Phoenix Wing)", code: "BX-23", weight: "38.2g", spin: "右迴旋 (Right)", desc: "超重量級塗裝金屬刃，擁有一擊必殺的強大衝擊力與打擊感。" },
+        "wizard rod": { name: "巫師魔杖 (Wizard Rod)", code: "UX-03", weight: "35.8g", spin: "右迴旋 (Right)", desc: "外圍極致離心力設計，當前版本的持久王 (T0級別)，防禦與抗爆裂表現極佳。" },
+        "dran buster": { name: "爆裂蒼龍 (Dran Buster)", code: "UX-01", weight: "37.5g", spin: "右迴旋 (Right)", desc: "特化單點巨刃攻擊，能配合極短 X-Dash 衝刺造成瞬間外場打擊。" },
+        "cobalt dragoon": { name: "鈷藍左龍 (Cobalt Dragoon)", code: "BX-34", weight: "37.9g", spin: "左迴旋 (Left)", desc: "左迴旋極致攻擊型刃，能進行逆迴旋撞擊與強力的反向衝擊力量。" },
+        "shark edge": { name: "巨齒鯊 (Shark Edge)", code: "BX-14", weight: "34.5g", spin: "右迴旋 (Right)", desc: "經典上勾角刃，專門將低重心對手掀翻並擊出場外。" },
+        "shark scale": { name: "鯊魚鱗片 (Shark Scale)", code: "UX-15", weight: "35.2g", spin: "右迴旋 (Right)", desc: "UX系列連續鋸齒攻擊刃，擁有連續割裂打擊與良好離心優勢。" },
+        "tyranno roar": { name: "暴龍咆哮 (Tyranno Roar)", code: "UX-15", weight: "36.8g", spin: "右迴旋 (Right)", desc: "強下壓重擊型刃，能對矮軸心對手施加沉重破壞性壓制。" },
+        "hells brave": { name: "地獄勇士 (Hells Brave)", code: "UX-15", weight: "34.0g", spin: "右迴旋 (Right)", desc: "多段式切削平衡刃，可靈活切換反擊與穩定姿勢。" },
+        "tyranno beat": { name: "暴龍擊打 (Tyranno Beat)", code: "UX-04", weight: "37.2g", spin: "右迴旋 (Right)", desc: "不規則厚重打擊面，能干擾破壞對手的旋轉軸心。" }
+      },
+      ratchets: {
+        "4-60": { name: "4-60", height: "6.0mm", teeth: "4齒", burstRisk: "低 (Low)", desc: "四角平均分佈中軸，具備高重心安定性與防爆裂抗性。" },
+        "9-60": { name: "9-60", height: "6.0mm", teeth: "9齒", burstRisk: "極低 (Very Low)", desc: "9齒圓滑高密度結構，提供全遊戲最優秀的爆裂抵抗力。" },
+        "1-60": { name: "1-60", height: "6.0mm", teeth: "1齒", burstRisk: "中高 (Moderate)", desc: "單角偏重，提供偏心強打擊力，適合極致攻擊型組合。" },
+        "5-60": { name: "5-60", height: "6.0mm", teeth: "5齒", burstRisk: "低 (Low)", desc: "五角圓潤防衛型棘輪，通用度極高且不易卡齒。" },
+        "3-60": { name: "3-60", height: "6.0mm", teeth: "3齒", burstRisk: "低 (Low)", desc: "經典三角棘輪，能完美配合三刃 Blade 集中爆發力。" },
+        "4-50": { name: "4-50", height: "5.0mm", teeth: "4齒", burstRisk: "極低 (Low)", desc: "UX極矮棘輪，大幅降低陀螺重心地面，提供強大貼地防護。" }
+      },
+      bits: {
+        "d": { name: "D (Dot)", type: "防禦型", dash: "C級", stamina: "A級", desc: "半球形微突起防禦軸心，抗推進擊倒，具備優良傾斜回復力與對抗打擊能力。" },
+        "gf": { name: "GF (Gear Flat)", type: "極限攻擊型", dash: "SS級 (極快)", stamina: "D (極低)", desc: "全齒平軸，能產生超高速 X-Dash 衝刺，具備最強首波爆發力。" },
+        "db": { name: "DB (Disc Ball)", type: "頂級持久型", dash: "B級 (普通)", stamina: "SS級 (頂級)", desc: "外圍飛輪圓軸，保持戰場中心極度穩定與離心時間。" },
+        "r": { name: "R (Rush)", type: "攻擊持久型", dash: "A級 (高速)", stamina: "B級 (中等)", desc: "多齒斜平軸，既有良好衝刺能力又能控制環形軌跡。" },
+        "a": { name: "A (Accel)", type: "超攻擊型", dash: "S級 (高速)", stamina: "C級 (較低)", desc: "快打衝刺軸心，專攻一擊必殺的外場落點。" },
+        "uf": { name: "UF (Ultimate Flat)", type: "超平軸攻擊型", dash: "S級 (極速)", stamina: "C級", desc: "寬平軸心，提供極度貼地的平穩超高速衝刺。" },
+        "b": { name: "B (Ball)", type: "持久型", dash: "C級", stamina: "S級", desc: "球形軸心，減少地面摩擦，受到撞擊後能迅速回復中心。" }
+      },
+      sets: {
+        "UX-15": {
+          code: "UX-15",
+          name: "UX-15 3對戰套裝 (Deck Set)",
+          desc: "包含 3 款全新 UX 強化系列陀螺，具備超低重心與獨特鋸齒配重設計。",
+          beys: [
+            { name: "Shark Scale 4-50UF", blade: "shark scale", ratchet: "4-50", bit: "uf" },
+            { name: "Tyranno Roar 1-70L", blade: "tyranno roar", ratchet: "1-70", bit: "l" },
+            { name: "Hells Brave 3-60GF", blade: "hells brave", ratchet: "3-60", bit: "gf" }
+          ]
+        }
+      },
+      combos: {
+        "BX-35": { name: "Black Shell 4-60D (黑龜)", blade: "black shell", ratchet: "4-60", bit: "d", code: "BX-35" },
+        "UX-03": { name: "Wizard Rod 5-70DB", blade: "wizard rod", ratchet: "9-60", bit: "db", code: "UX-03" },
+        "BX-23": { name: "Phoenix Wing 9-60GF", blade: "phoenix wing", ratchet: "9-60", bit: "gf", code: "BX-23" },
+        "UX-01": { name: "Dran Buster 1-60A", blade: "dran buster", ratchet: "1-60", bit: "a", code: "UX-01" },
+        "BX-34": { name: "Cobalt Dragoon 2-60C", blade: "cobalt dragoon", ratchet: "1-60", bit: "gf", code: "BX-34" }
+      }
+    };
 
-      <div class="section-block">
-        <div class="section-title">🥊 3. 發射戰術與應對策略</div>
-        <div style="margin-bottom: 12px; background: #1a2436; padding: 10px; border-radius: 8px;">
-          <strong>🎯 發射戰術建議：</strong><span id="tacticsSuggest">-</span>
-        </div>
-        
-        <div class="counter-card">
-          <div class="counter-type">💥 正面強攻對決：</div>
-          <div id="counter1">-</div>
-        </div>
-        <div class="counter-card">
-          <div class="counter-type">🛡️ 克制持久/反擊戰術：</div>
-          <div id="counter2">-</div>
-        </div>
-      </div>
-
-      <a id="hinfokDirectBtn" class="hinfok-link-btn" href="https://beys.hinfok.com/" target="_blank">
-        🌐 前往 Hinfok BeyDB 查看本配件原始資料庫詳情 ➔
-      </a>
-    </div>
-
-    <div id="alertBox" class="alert-box" style="display: none;"></div>
-  </main>
-
-  <footer>
-    🤖 本系統數據庫以 <a href="https://beys.hinfok.com/" target="_blank">Hinfok BeyDB</a> 為首要資料來源
-  </footer>
-</div>
-
-<script>
-  // 1. 套裝資料庫 (Deck Sets)
-  const dbDeckSets = [
-    {
-      code: 'UX-15',
-      name: 'UX-15 烈鯊鱗甲 3對戰套裝 (SharkScale Deck Set)',
-      combos: [
-        { label: '🦈 Shark Scale 4-50 UF (烈鯊鱗甲 4-50UF)', value: 'Shark Scale 4-50 UF' },
-        { label: '🦖 Tyranno Roar 1-70 L (暴龍咆哮 1-70L)', value: 'Tyranno Roar 1-70 L' },
-        { label: '🔥 Hells Brave 3-60 GF (地獄勇士 3-60GF)', value: 'Hells Brave 3-60 GF' }
-      ]
-    }
-  ];
-
-  // 2. Blade 資料庫 (新增 Shark Scale 等組件)
-  const dbBlades = [
-    { code: 'UX-15', keys: ['shark scale', '烈鯊鱗甲', 'sharkscale', 'ux-15', 'ux15'], name: 'Shark Scale (烈鯊鱗甲)', weight: '約 36.5g', type: '攻擊型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：UX-15 套裝主打 Blade，擁有鱗片狀連續切刃，下段強攻力極強。' },
-    { code: 'UX-15', keys: ['tyranno roar', '暴龍咆哮', 'tyrannoroar'], name: 'Tyranno Roar (暴龍咆哮)', weight: '約 36.8g', type: '攻擊型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：高衝擊鋸齒 Blade，具備連續咆哮式的衝撞力。' },
-    { code: 'UX-15', keys: ['hells brave', '地獄勇士', 'hellsbrave'], name: 'Hells Brave (地獄勇士)', weight: '約 34.2g', type: '平衡型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：改良式多角 Blade，兼具彈開撞擊與防禦能力。' },
-    { code: 'BX-23', keys: ['phoenix wing', '鳳凰翼', 'phoenix', 'bx-23', 'bx23'], name: 'Phoenix Wing (鳳凰翼)', weight: '約 38.0g (超重型)', type: '攻擊型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：金屬塗層超重 Blade，擁有頂級碰撞力。' },
-    { code: 'UX-03', keys: ['wizard rod', '嚮導魔杖', '魔杖', 'wizard', 'ux-03', 'ux03'], name: 'Wizard Rod (嚮導魔杖)', weight: '約 35.5g', type: '持久型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：超大外圍直徑，現役最強持久 Blade。' },
-    { code: 'UX-08', keys: ['cobalt dragoon', '深藍飛龍', '飛龍', 'ux-08', 'ux08'], name: 'Cobalt Dragoon (深藍飛龍)', weight: '約 37.5g', type: '攻擊型', spin: '🌀 左迴旋', desc: 'Hinfok BeyDB 標示：左迴旋強攻 Blade，與右迴旋逆向吸收衝撞。' },
-    { code: 'UX-01', keys: ['dran buster', '蒼龍破滅者', 'buster', 'ux-01', 'ux01'], name: 'Dran Buster (蒼龍破滅者)', weight: '約 36.0g', type: '攻擊型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：超巨大單角突刺 Blade，一擊必殺。' },
-    { code: 'BX-14', keys: ['shark edge', '鯊魚刃', 'shark', 'bx-14', 'bx14'], name: 'Shark Edge (鯊魚刃)', weight: '約 34.5g', type: '攻擊型', spin: '右迴旋', desc: 'Hinfok BeyDB 標示：雙大傾斜背刃，極度擅長下段 Upper Finish。' }
-  ];
-
-  // 3. Bit 資料庫 (新增 UF, L 等)
-  const dbBits = [
-    { code: 'UF', keys: ['uf', 'ultra flat'], name: 'UF (Ultra Flat)', shape: '超廣角平軸', xdash: '★★★★★ (極限爆速)', stamina: '★☆☆☆☆', desc: '接觸面積極大，發動目前全遊戲最高速且狂暴的 X-Dash！' },
-    { code: 'L', keys: ['l', 'level'], name: 'L (Level)', shape: '平階軸', xdash: '★★★☆☆', stamina: '★★★☆☆', desc: '階梯狀設計，提供高度控軌能力與平衡旋轉。' },
-    { code: 'GF', keys: ['gf', 'gear flat'], name: 'GF (Gear Flat)', shape: '齒輪平軸', xdash: '★★★★★', stamina: '★☆☆☆☆', desc: '齒輪延伸至底部，極速 X-Dash 衝撞。' },
-    { code: 'B', keys: ['b', 'ball'], name: 'B (Ball)', shape: '球形軸', xdash: '★☆☆☆☆', stamina: '★★★★★', desc: '光滑球體，中央定點持久神軸。' },
-    { code: 'F', keys: ['f', 'flat'], name: 'F (Flat)', shape: '標準平軸', xdash: '★★★★☆', stamina: '★★☆☆☆', desc: '標準攻擊軸心，加速穩定。' }
-  ];
-
-  const comboInput = document.getElementById('comboInput');
-  const suggestionsList = document.getElementById('suggestionsList');
-  const deckSetBox = document.getElementById('deckSetBox');
-
-  comboInput.addEventListener('input', function() {
-    const query = this.value.trim().toLowerCase().replace(/\s+/g, '');
-    if (!query) {
-      suggestionsList.style.display = 'none';
-      return;
+    /* Helper Function: Normalize Strings (Removes spaces, hyphens, lowercase) */
+    function norm(str) {
+      if (!str) return '';
+      return str.toString().toLowerCase().replace(/[-\s]/g, '');
     }
 
-    let matches = [];
+    /* ==========================================================================
+       2. Search Suggestions & Auto Complete
+       ========================================================================== */
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsBox = document.getElementById('suggestions');
 
-    // 匹配 Deck Set (UX-15 等)
-    dbDeckSets.forEach(set => {
-      if (set.code.toLowerCase().includes(query) || set.name.toLowerCase().includes(query)) {
-        matches.push({ text: set.code, label: `📦 [${set.code}] ${set.name}`, tag: '3對戰套裝', type: 'set' });
+    searchInput.addEventListener('input', function() {
+      const q = norm(this.value);
+      if (!q) {
+        suggestionsBox.style.display = 'none';
+        return;
+      }
+
+      let matches = [];
+
+      // Check Sets
+      Object.keys(BEY_DB.sets).forEach(key => {
+        if (norm(key).includes(q) || norm(BEY_DB.sets[key].name).includes(q)) {
+          matches.push({ title: BEY_DB.sets[key].name, code: key, type: '3對戰套裝' });
+        }
+      });
+
+      // Check Combos / Products (e.g., BX-35, UX-03)
+      Object.keys(BEY_DB.combos).forEach(key => {
+        if (norm(key).includes(q) || norm(BEY_DB.combos[key].name).includes(q)) {
+          matches.push({ title: BEY_DB.combos[key].name, code: key, type: '單體陀螺' });
+        }
+      });
+
+      // Check Blades (e.g. 黑龜, 鳳凰翼)
+      Object.keys(BEY_DB.blades).forEach(key => {
+        const blade = BEY_DB.blades[key];
+        if (norm(key).includes(q) || norm(blade.name).includes(q) || norm(blade.code).includes(q)) {
+          matches.push({ title: blade.name, code: blade.code || key, type: 'Blade 部件' });
+        }
+      });
+
+      // Filter unique
+      const uniqueMatches = Array.from(new Set(matches.map(a => a.title)))
+        .map(title => matches.find(a => a.title === title)).slice(0, 6);
+
+      if (uniqueMatches.length > 0) {
+        suggestionsBox.innerHTML = uniqueMatches.map(m => `
+          <div class="suggestion-item" onclick="selectSuggestion('${m.code}')">
+            <span>${m.title}</span>
+            <span class="suggestion-code">${m.type}</span>
+          </div>
+        `).join('');
+        suggestionsBox.style.display = 'block';
+      } else {
+        suggestionsBox.style.display = 'none';
       }
     });
 
-    // 匹配 Blade
-    dbBlades.forEach(blade => {
-      if (blade.keys.some(k => k.replace(/\s+/g, '').includes(query))) {
-        matches.push({ text: blade.name, label: `[${blade.code}] ${blade.name}`, tag: 'Blade 攻擊環', type: 'part' });
+    function selectSuggestion(code) {
+      searchInput.value = code;
+      suggestionsBox.style.display = 'none';
+      handleSearch();
+    }
+
+    function quickSelect(code) {
+      searchInput.value = code;
+      handleSearch();
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search-input-container')) {
+        suggestionsBox.style.display = 'none';
       }
     });
 
-    // 匹配 Bit
-    dbBits.forEach(bit => {
-      if (bit.code.toLowerCase().includes(query) || bit.keys.some(k => k.includes(query))) {
-        matches.push({ text: bit.code, label: `${bit.name} (${bit.shape})`, tag: 'Bit 軸心', type: 'part' });
-      }
-    });
+    /* ==========================================================================
+       3. Main Search Engine with Flexible Normalization
+       ========================================================================== */
+    function handleSearch() {
+      const q = norm(searchInput.value);
+      suggestionsBox.style.display = 'none';
 
-    if (matches.length > 0) {
-      suggestionsList.innerHTML = matches.slice(0, 8).map(m => `
-        <div class="suggestion-item" onclick="selectSuggestion('${m.text}', '${m.type}')">
-          <span>${m.label}</span>
-          <span class="suggestion-tag">${m.tag}</span>
+      if (!q) return;
+
+      // 1. Search Sets (e.g. UX-15)
+      for (let key in BEY_DB.sets) {
+        if (norm(key).includes(q) || q.includes(norm(key)) || norm(BEY_DB.sets[key].name).includes(q)) {
+          renderDeckSetView(BEY_DB.sets[key]);
+          return;
+        }
+      }
+
+      // 2. Search Combos / Standard Product Codes (e.g. BX-35, UX-03, BX-23)
+      for (let key in BEY_DB.combos) {
+        if (norm(key).includes(q) || q.includes(norm(key)) || norm(BEY_DB.combos[key].name).includes(q)) {
+          const combo = BEY_DB.combos[key];
+          renderSingleBeyAnalysis(combo.blade, combo.ratchet, combo.bit, combo.name, combo.code);
+          return;
+        }
+      }
+
+      // 3. Search Individual Blades (e.g. "黑龜", "Black Shell", "鳳凰翼")
+      for (let key in BEY_DB.blades) {
+        const bladeObj = BEY_DB.blades[key];
+        if (norm(key).includes(q) || norm(bladeObj.name).includes(q) || norm(bladeObj.code).includes(q)) {
+          renderSingleBeyAnalysis(key, "4-60", "d", `${bladeObj.name} 分析`, bladeObj.code || "BX/UX");
+          return;
+        }
+      }
+
+      // 4. Fallback Not Found
+      renderNotFound();
+    }
+
+    /* ==========================================================================
+       4. UI Rendering Functions
+       ========================================================================== */
+
+    // Render 3對戰套裝 (Deck Set Mode)
+    function renderDeckSetView(setObj) {
+      const output = document.getElementById('outputContainer');
+      output.innerHTML = `
+        <div class="deck-banner">
+          <div class="deck-title">
+            <span>🛡️</span>
+            <span>【3對戰套裝辨識】${setObj.name}</span>
+          </div>
+          <p style="font-size: 0.9rem; color: #cbd5e1;">${setObj.desc}</p>
+          
+          <div class="deck-grid">
+            ${setObj.beys.map((bey, idx) => `
+              <div class="deck-card">
+                <div>
+                  <span class="bey-code-badge">Slot 0${idx + 1}</span>
+                  <div class="deck-bey-name">${bey.name}</div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted);">
+                    Blade: ${BEY_DB.blades[bey.blade]?.name || bey.blade}<br>
+                    Ratchet: ${bey.ratchet} | Bit: ${bey.bit.toUpperCase()}
+                  </p>
+                </div>
+                <button class="deck-analyze-btn" onclick="renderSingleBeyAnalysis('${bey.blade}', '${bey.ratchet}', '${bey.bit}', '${bey.name}', '${setObj.code}')">
+                  🔍 單體 AI 深度分析
+                </button>
+              </div>
+            `).join('')}
+          </div>
         </div>
-      `).join('');
-      suggestionsList.style.display = 'block';
-    } else {
-      suggestionsList.style.display = 'none';
-    }
-  });
-
-  function selectSuggestion(text, type) {
-    comboInput.value = text;
-    suggestionsList.style.display = 'none';
-    analyzeCombo();
-  }
-
-  function setPreset(val) {
-    comboInput.value = val;
-    suggestionsList.style.display = 'none';
-    analyzeCombo();
-  }
-
-  function analyzeCombo() {
-    const rawInput = comboInput.value.trim();
-    const resultCard = document.getElementById('resultCard');
-    const alertBox = document.getElementById('alertBox');
-
-    if (!rawInput) {
-      alertBox.style.display = 'block';
-      alertBox.innerHTML = '👉 請先輸入陀螺名稱或選擇建議選項！';
-      resultCard.classList.remove('active');
-      deckSetBox.style.display = 'none';
-      return;
+      `;
     }
 
-    const inputLower = rawInput.toLowerCase().replace(/\s+/g, '');
+    // Render Single Bey Analysis
+    function renderSingleBeyAnalysis(bladeKey, ratchetKey, bitKey, customTitle = "", productCode = "BX/UX") {
+      const blade = BEY_DB.blades[bladeKey] || BEY_DB.blades["black shell"];
+      const ratchet = BEY_DB.ratchets[ratchetKey] || BEY_DB.ratchets["4-60"];
+      const bit = BEY_DB.bits[bitKey] || BEY_DB.bits["d"];
 
-    // 1. 檢查是否輸入了 Deck Set (如 UX-15)
-    let deckMatch = dbDeckSets.find(d => d.code.toLowerCase() === inputLower || inputLower.includes(d.code.toLowerCase()));
-    if (deckMatch) {
-      deckSetBox.style.display = 'block';
-      document.getElementById('deckSetTitle').innerText = `📦 偵測到 ${deckMatch.name}！請選擇其中一款分析：`;
-      document.getElementById('deckComboList').innerHTML = deckMatch.combos.map(c => `
-        <button class="deck-combo-btn" onclick="setPreset('${c.value}')">
-          <span>${c.label}</span>
-          <strong>點擊分析 ➔</strong>
-        </button>
-      `).join('');
+      const title = customTitle || `${blade.name} ${ratchet.name} ${bit.name.split(' ')[0]}`;
 
-      alertBox.style.display = 'none';
-      resultCard.classList.remove('active');
-      return;
-    } else {
-      deckSetBox.style.display = 'none';
+      // AI Logic
+      const isAttack = bit.type.includes("攻擊");
+      const isDefense = bit.type.includes("防禦");
+
+      const pros = [];
+      const cons = [];
+
+      if (isDefense) {
+        pros.push("圓滑低阻力 Blade 與重腰身棘輪，能有效吸收外場猛烈衝撞。");
+        pros.push(`搭配 ${bit.name} 軸心，受撞擊後傾斜角度能快速彈回戰鬥盤中心。`);
+        cons.push("面對頂級持久型 (如 Wizard Rod DB) 於戰局後段轉速表現略遜一籌。");
+        cons.push("反擊爆發力較弱，主要依賴減震防守贏得點數。");
+      } else if (isAttack) {
+        pros.push("具備極速 X-Dash 衝刺能力，首波外場 KO (Over Finish) 率高。");
+        pros.push(`配合 ${blade.name.split(' ')[0]} 的重型金屬刃，撞擊爆發力極高。`);
+        cons.push("戰局中後期持久力衰減極快。");
+      } else {
+        pros.push("戰術性能極度穩定，抗打擊與持久力均衡。");
+        cons.push("無特別突出爆發一擊能力。");
+      }
+
+      const output = document.getElementById('outputContainer');
+      output.innerHTML = `
+        <div class="analysis-card">
+          <!-- Header -->
+          <div class="bey-header">
+            <div class="bey-title-group">
+              <span class="bey-code-badge">官方編號/套裝: ${productCode}</span>
+              <h2>${title}</h2>
+            </div>
+            <div class="specs-pills">
+              <div class="pill">預估總重: <span>~${(parseFloat(blade.weight) + 6.2 + 2.1).toFixed(1)}g</span></div>
+              <div class="pill">迴旋方向: <span>${blade.spin}</span></div>
+            </div>
+          </div>
+
+          <!-- Section 1: Parts Disassembly -->
+          <div class="section-title">⚡ 1. 配件拆解與規格 (Hinfok BeyDB 數據參照)</div>
+          <div class="parts-grid">
+            <div class="part-box">
+              <div class="part-type">Blade (攻擊環/刃)</div>
+              <div class="part-name">${blade.name}</div>
+              <div class="part-detail">
+                重量: <b>${blade.weight}</b> | 迴旋: <b>${blade.spin}</b><br>
+                ${blade.desc}
+              </div>
+            </div>
+
+            <div class="part-box">
+              <div class="part-type">Ratchet (棘輪/中軸)</div>
+              <div class="part-name">${ratchet.name}</div>
+              <div class="part-detail">
+                高度: <b>${ratchet.height}</b> | 齒數: <b>${ratchet.teeth}</b><br>
+                爆裂風險: <b style="color:var(--neon-green)">${ratchet.burstRisk}</b><br>
+                ${ratchet.desc}
+              </div>
+            </div>
+
+            <div class="part-box">
+              <div class="part-type">Bit (軸心)</div>
+              <div class="part-name">${bit.name}</div>
+              <div class="part-detail">
+                類型: <b>${bit.type}</b><br>
+                X-Dash衝刺: <b>${bit.dash}</b> | 持久力: <b>${bit.stamina}</b><br>
+                ${bit.desc}
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Pros & Cons -->
+          <div class="pros-cons-grid">
+            <div class="pro-box">
+              <div class="section-title">🟢 核心優勢 (Pros)</div>
+              <ul class="feature-list">
+                ${pros.map(p => `<li>${p}</li>`).join('')}
+              </ul>
+            </div>
+
+            <div class="con-box">
+              <div class="section-title">🔴 核心劣勢與弱點 (Cons)</div>
+              <ul class="feature-list">
+                ${cons.map(c => `<li>${c}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 3: Launch Tactics -->
+          <div class="tactics-box">
+            <div class="section-title">🎯 2. AI 發射戰術建議 (Launch Tactics)</div>
+            <p style="font-size: 0.95rem; line-height: 1.5; color: #e2e8f0;">
+              ${isDefense 
+                ? '建議採用 <b>0° 絕對垂直穩定發射</b>，力道維持在 <b>85%~90%</b>。發射落點選擇戰鬥盤中央，讓 D (Dot) 軸心迅速著地定點，發揮下勾角度吸收首波強力衝刺。' 
+                : '建議採用 <b>15° 傾斜角度發射</b>，配合拉線爆發力衝刺。'}
+            </p>
+            <div class="tactics-meta">
+              <div class="tactic-tag">建議力道: <b>${isDefense ? '85% 穩定控制' : '100% 強力拉線'}</b></div>
+              <div class="tactic-tag">發射角度: <b>${isDefense ? '90° 垂直落點' : '15° 傾斜切入'}</b></div>
+            </div>
+          </div>
+
+          <!-- Section 4: Counter Combos -->
+          <div class="counter-box">
+            <div class="section-title">⚔️ 3. 克制組合推薦 (Counter Combos)</div>
+            <div class="counter-list">
+              <div class="counter-item">
+                <div>
+                  <span class="counter-item-name">Wizard Rod 9-60 DB</span>
+                  <span style="font-size:0.8rem; color:var(--text-muted);"> (頂級持久抗衡)</span>
+                </div>
+                <span style="color:var(--neon-green); font-size:0.85rem; font-weight:bold;">勝率預估 62%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hinfok BeyDB Citation -->
+          <div class="beydb-cite-card">
+            <p>數據與組件拆解嚴格參照 Hinfok BeyDB 官方數據庫庫存紀錄。</p>
+            <a href="https://beys.hinfok.com/" target="_blank" class="beydb-btn">
+              🌐 前往 Hinfok BeyDB 官網查看完整原廠數據
+            </a>
+          </div>
+        </div>
+      `;
     }
 
-    // 2. 進行單體陀螺匹配
-    let bladeObj = dbBlades.find(b => b.keys.some(k => inputLower.includes(k.replace(/\s+/g, ''))));
-    let ratchetMatch = rawInput.match(/\d-\d0/);
-    let bitObj = dbBits.find(b => b.keys.some(k => {
-      const regex = new RegExp(`\\b${k}\\b`, 'i');
-      return regex.test(inputLower) || inputLower.endsWith(k);
-    }));
-
-    // 若完全匹配不到 Blade，給予智能引導而不是卡死
-    if (!bladeObj) {
-      alertBox.style.display = 'block';
-      alertBox.innerHTML = `💡 <strong>提示：</strong> 系統未完全收錄 <strong>"${rawInput}"</strong> 的詳細數據。<br>可以直接到 Hinfok BeyDB 尋找最新配件資料：<br><a style="color:#00f2fe; font-weight:bold; display:inline-block; margin-top:8px;" href="https://beys.hinfok.com/" target="_blank">🔍 前往 Hinfok BeyDB 官網查詢 ➔</a>`;
-      resultCard.classList.remove('active');
-      return;
+    // Render Friendly Fallback Error
+    function renderNotFound() {
+      const output = document.getElementById('outputContainer');
+      output.innerHTML = `
+        <div class="not-found-card">
+          <h3>⚠️ 未找到匹配的陀螺或部件數據</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+            請嘗試輸入標準編號（如 UX-15, BX-35, UX-03）或熱門名稱（如 黑龜, 鳳凰翼, Wizard Rod）。
+          </p>
+          <div class="beydb-cite-card" style="max-width: 400px; margin: 0 auto;">
+            <p>找不到想要的資料？直接前往 Hinfok BeyDB 尋找最新陀螺數據：</p>
+            <a href="https://beys.hinfok.com/" target="_blank" class="beydb-btn">
+              🔗 開啟 Hinfok BeyDB 資料庫
+            </a>
+          </div>
+        </div>
+      `;
     }
 
-    alertBox.style.display = 'none';
-
-    const blade = bladeObj;
-    const ratchetStr = ratchetMatch ? ratchetMatch[0] : '4-50';
-    const bit = bitObj || { name: '自訂軸心', shape: '標準軸', xdash: '★★★☆☆', stamina: '★★★☆☆', desc: '通用對戰軸心。' };
-
-    const ratchetHeight = ratchetStr.split('-')[1];
-    const ratchetTeeth = ratchetStr.split('-')[0];
-
-    document.getElementById('comboTitle').innerText = `${rawInput.toUpperCase()}`;
-    document.getElementById('bladeInfo').innerHTML = `${blade.name}<br><small>重量：${blade.weight} | 迴旋：${blade.spin}<br>${blade.desc}</small>`;
-    document.getElementById('ratchetInfo').innerHTML = `${ratchetStr} (${ratchetTeeth}刃 / 高${ratchetHeight}mm)<br><small>高度：${ratchetHeight==='50'?'4.9mm 極低重心 (防爆高)':(ratchetHeight==='60'?'6.0mm 低重心':'高重心')}</small>`;
-    document.getElementById('bitInfo').innerHTML = `${bit.name} (${bit.shape})<br><small>X-Dash：${bit.xdash}<br>持久力：${bit.stamina}<br>${bit.desc}</small>`;
-
-    const prosList = document.getElementById('prosList');
-    const consList = document.getElementById('consList');
-    prosList.innerHTML = '';
-    consList.innerHTML = '';
-
-    if (blade.type === '攻擊型' || bit.code === 'UF' || bit.code === 'GF') {
-      prosList.innerHTML += `<li>⚡ <strong>開局極速強攻：</strong> 配合 X 軌道能打出全場最狂暴的 X-Dash 衝撞。</li>`;
-      prosList.innerHTML += `<li>💥 <strong>下段爆裂率高：</strong> 傾斜背刃容易切入對手棘輪下方造成 Knockout。</li>`;
-      consList.innerHTML += `<li>⏳ <strong>續航體力低：</strong> 若前 15 秒未能彈飛對手，尾段易失速。</li>`;
-    } else {
-      prosList.innerHTML += `<li>🛡️ <strong>攻防兼備：</strong> 兼具下壓防禦與穩定轉速。</li>`;
-      consList.innerHTML += `<li>⚠️ <strong>怕極限重型正撞：</strong> 開局需避免與 Phoenix Wing 正面迎擊。</li>`;
-    }
-
-    document.getElementById('tacticsSuggest').innerText = '建議拉滿發射力道，發射器傾斜 15 度，第一時間咬合 X 軌道啟動 X-Dash 衝撞對手！';
-    document.getElementById('counter1').innerHTML = `<strong>推薦組合：</strong> [BX-23] Phoenix Wing 9-60 GF<br><strong>原因：</strong> 用頂級重量硬剛。`;
-    document.getElementById('counter2').innerHTML = `<strong>推薦組合：</strong> [UX-03] Wizard Rod 5-70 B<br><strong>原因：</strong> 用魔杖強大外重心吸收衝擊，以 Spin Finish 勝出。`;
-
-    resultCard.classList.add('active');
-  }
-</script>
-
+    // Default view on load
+    window.addEventListener('DOMContentLoaded', () => {
+      quickSelect('BX-35');
+    });
+  </script>
 </body>
 </html>
