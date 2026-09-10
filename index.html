@@ -13,6 +13,7 @@
       --accent-gold: #ffd700;
       --neon-red: #ff0055;
       --neon-green: #00ff88;
+      --neon-purple: #9d4edd;
       --text-main: #f0f4f8;
       --text-muted: #8a99ad;
       --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -63,7 +64,7 @@
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 3px;
-      background: linear-gradient(90deg, var(--primary-cyan), var(--accent-gold), var(--neon-red));
+      background: linear-gradient(90deg, var(--primary-cyan), var(--accent-gold), var(--neon-purple), var(--neon-red));
     }
 
     .logo-badge {
@@ -87,9 +88,10 @@
     }
 
     .subtitle {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       margin-top: 6px;
+      line-height: 1.4;
     }
 
     /* Search Box & Suggestions */
@@ -151,10 +153,10 @@
       background: #0f172a;
       border: 1px solid var(--primary-cyan);
       border-radius: 12px;
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
       z-index: 100;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.85);
       display: none;
     }
 
@@ -467,27 +469,35 @@
       color: var(--accent-gold);
     }
 
-    /* BeyDB Citation Banner */
-    .beydb-cite-card {
-      background: rgba(0, 240, 255, 0.05);
+    /* Multi-DB Citation Cards & Links Group */
+    .db-citation-section {
+      background: rgba(0, 240, 255, 0.04);
       border: 1px dashed var(--primary-cyan);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 14px;
+      padding: 18px;
       text-align: center;
       margin-top: 20px;
     }
 
-    .beydb-cite-card p {
+    .db-citation-section p {
       font-size: 0.85rem;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
-    .beydb-btn {
+    .db-links-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .db-btn {
       display: inline-block;
-      padding: 8px 20px;
-      background: var(--primary-cyan);
-      color: #000;
+      padding: 8px 16px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--primary-cyan);
+      color: var(--primary-cyan);
       font-weight: bold;
       text-decoration: none;
       border-radius: 8px;
@@ -495,9 +505,32 @@
       transition: all 0.2s;
     }
 
-    .beydb-btn:hover {
-      background: #fff;
+    .db-btn:hover {
+      background: var(--primary-cyan);
+      color: #000;
       box-shadow: 0 0 15px var(--primary-cyan);
+    }
+
+    .db-btn.btn-goshoot {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      background: rgba(255, 215, 0, 0.15);
+    }
+    .db-btn.btn-goshoot:hover {
+      background: var(--accent-gold);
+      color: #000;
+      box-shadow: 0 0 15px var(--accent-gold);
+    }
+
+    .db-btn.btn-phstudy {
+      border-color: var(--neon-purple);
+      color: #d8b4fe;
+      background: rgba(157, 78, 221, 0.2);
+    }
+    .db-btn.btn-phstudy:hover {
+      background: var(--neon-purple);
+      color: #fff;
+      box-shadow: 0 0 15px var(--neon-purple);
     }
 
     /* Fallback / Not Found View */
@@ -520,6 +553,7 @@
       .search-box-wrapper { flex-direction: column; }
       .search-btn { padding: 12px; }
       .bey-header { flex-direction: column; gap: 8px; }
+      .db-links-group { flex-direction: column; }
     }
   </style>
 </head>
@@ -530,7 +564,7 @@
     <header>
       <div class="logo-badge">BEYBLADE X AI COACH</div>
       <h1>爆旋陀螺 X 專業對戰教練</h1>
-      <p class="subtitle">數據源自 Hinfok BeyDB 權威資料庫，提供即時組件拆解與戰術解析</p>
+      <p class="subtitle">整合三大權威資料庫：Hinfok BeyDB、Go-Shoot 與 PHStudy<br>提供多維度組件拆解、動態建議與戰術數據</p>
     </header>
 
     <!-- Search Section -->
@@ -540,7 +574,7 @@
           <input 
             type="text" 
             id="searchInput" 
-            placeholder="輸入產品編號 (例如 UX-15, BX-35, BX-23) 或陀螺名稱 (如 黑龜, Wizard Rod)..."
+            placeholder="輸入產品編號 (例如 UX-19, UX-15, BX-35) 或關鍵字 (例如 子彈, 獅鷲, 黑龜, 鳳凰)..."
             autocomplete="off"
           />
           <div id="suggestions" class="suggestions-dropdown"></div>
@@ -551,12 +585,12 @@
 
     <!-- Preset Shortcuts -->
     <div class="presets-container">
-      <span class="preset-label">熱門推薦:</span>
+      <span class="preset-label">熱門快捷:</span>
+      <button class="preset-chip" onclick="quickSelect('UX-19')">💥 UX-19 (子彈獅鷲 Bullet Griffon)</button>
       <button class="preset-chip" onclick="quickSelect('UX-15')">🔥 UX-15 (3對戰套裝)</button>
       <button class="preset-chip" onclick="quickSelect('BX-35')">🐢 BX-35 (Black Shell 黑龜)</button>
       <button class="preset-chip" onclick="quickSelect('UX-03')">Wizard Rod (UX-03)</button>
       <button class="preset-chip" onclick="quickSelect('BX-23')">鳳凰翼 (BX-23)</button>
-      <button class="preset-chip" onclick="quickSelect('UX-01')">Dran Buster (UX-01)</button>
     </div>
 
     <!-- Main Output Area -->
@@ -566,16 +600,20 @@
 
     <!-- Footer -->
     <footer style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 10px;">
-      本工具核心數據嚴格參照 <a href="https://beys.hinfok.com/" target="_blank" style="color: var(--primary-cyan); text-decoration: none;">Hinfok BeyDB</a> 官方標準數據。
+      核心數據嚴格參照三大權威資料庫：
+      <a href="https://beys.hinfok.com/" target="_blank" style="color: var(--primary-cyan); text-decoration: none;">Hinfok BeyDB</a> | 
+      <a href="https://go-shoot.github.io/x/" target="_blank" style="color: var(--accent-gold); text-decoration: none;">Go-Shoot DB</a> | 
+      <a href="https://beyblade.phstudy.org/index.html" target="_blank" style="color: #d8b4fe; text-decoration: none;">PHStudy 資料庫</a>
     </footer>
   </div>
 
   <script>
     /* ==========================================================================
-       1. Embedded Database (Hinfok BeyDB Ref. Specs)
+       1. Embedded Database (Synchronized with BeyDB, Go-Shoot & PHStudy)
        ========================================================================== */
     const BEY_DB = {
       blades: {
+        "bullet griffon": { name: "子彈獅鷲 (Bullet Griffon)", code: "UX-19", weight: "36.8g", spin: "右迴旋 (Right)", desc: "UX-19 雙體分離式特殊攻擊Blade，遭受對手強烈撞擊時子彈(Bullet)頂層可脫出獨立運作，造成雙重打擊干擾。" },
         "black shell": { name: "黑龜 (Black Shell)", code: "BX-35", weight: "32.4g", spin: "右迴旋 (Right)", desc: "圓滑下勾防禦型金屬刃，防禦角度極佳，能顯著減緩正面猛烈撞擊力。" },
         "phoenix wing": { name: "鳳凰翼 (Phoenix Wing)", code: "BX-23", weight: "38.2g", spin: "右迴旋 (Right)", desc: "超重量級塗裝金屬刃，擁有一擊必殺的強大衝擊力與打擊感。" },
         "wizard rod": { name: "巫師魔杖 (Wizard Rod)", code: "UX-03", weight: "35.8g", spin: "右迴旋 (Right)", desc: "外圍極致離心力設計，當前版本的持久王 (T0級別)，防禦與抗爆裂表現極佳。" },
@@ -596,6 +634,7 @@
         "4-50": { name: "4-50", height: "5.0mm", teeth: "4齒", burstRisk: "極低 (Low)", desc: "UX極矮棘輪，大幅降低陀螺重心地面，提供強大貼地防護。" }
       },
       bits: {
+        "h": { name: "H (Hexa)", type: "平衡重裝型", dash: "A級", stamina: "A級", desc: "六角形微凸起尖軸，具備高支撐力與自重立直特性，兼具穩定度與急加速打擊。" },
         "d": { name: "D (Dot)", type: "防禦型", dash: "C級", stamina: "A級", desc: "半球形微突起防禦軸心，抗推進擊倒，具備優良傾斜回復力與對抗打擊能力。" },
         "gf": { name: "GF (Gear Flat)", type: "極限攻擊型", dash: "SS級 (極快)", stamina: "D (極低)", desc: "全齒平軸，能產生超高速 X-Dash 衝刺，具備最強首波爆發力。" },
         "db": { name: "DB (Disc Ball)", type: "頂級持久型", dash: "B級 (普通)", stamina: "SS級 (頂級)", desc: "外圍飛輪圓軸，保持戰場中心極度穩定與離心時間。" },
@@ -617,6 +656,7 @@
         }
       },
       combos: {
+        "UX-19": { name: "Bullet Griffon H (子彈獅鷲)", blade: "bullet griffon", ratchet: "4-60", bit: "h", code: "UX-19" },
         "BX-35": { name: "Black Shell 4-60D (黑龜)", blade: "black shell", ratchet: "4-60", bit: "d", code: "BX-35" },
         "UX-03": { name: "Wizard Rod 5-70DB", blade: "wizard rod", ratchet: "9-60", bit: "db", code: "UX-03" },
         "BX-23": { name: "Phoenix Wing 9-60GF", blade: "phoenix wing", ratchet: "9-60", bit: "gf", code: "BX-23" },
@@ -625,14 +665,14 @@
       }
     };
 
-    /* Helper Function: Normalize Strings (Removes spaces, hyphens, lowercase) */
+    /* Helper Function: Normalize Strings for Flexible Matching */
     function norm(str) {
       if (!str) return '';
-      return str.toString().toLowerCase().replace(/[-\s]/g, '');
+      return str.toString().toLowerCase().replace(/[-\s\(\)]/g, '');
     }
 
     /* ==========================================================================
-       2. Search Suggestions & Auto Complete
+       2. Dynamic Search Suggestions (Supports Substrings like "子彈", "獅鷲")
        ========================================================================== */
     const searchInput = document.getElementById('searchInput');
     const suggestionsBox = document.getElementById('suggestions');
@@ -646,21 +686,23 @@
 
       let matches = [];
 
-      // Check Sets
+      // 1. Search Sets
       Object.keys(BEY_DB.sets).forEach(key => {
-        if (norm(key).includes(q) || norm(BEY_DB.sets[key].name).includes(q)) {
-          matches.push({ title: BEY_DB.sets[key].name, code: key, type: '3對戰套裝' });
+        const set = BEY_DB.sets[key];
+        if (norm(key).includes(q) || norm(set.name).includes(q)) {
+          matches.push({ title: set.name, code: key, type: '3對戰套裝' });
         }
       });
 
-      // Check Combos / Products (e.g., BX-35, UX-03)
+      // 2. Search Combos / Product Codes (Matches "子彈", "黑龜", "UX-19")
       Object.keys(BEY_DB.combos).forEach(key => {
-        if (norm(key).includes(q) || norm(BEY_DB.combos[key].name).includes(q)) {
-          matches.push({ title: BEY_DB.combos[key].name, code: key, type: '單體陀螺' });
+        const combo = BEY_DB.combos[key];
+        if (norm(key).includes(q) || norm(combo.name).includes(q) || norm(combo.blade).includes(q)) {
+          matches.push({ title: combo.name, code: key, type: '單體陀螺' });
         }
       });
 
-      // Check Blades (e.g. 黑龜, 鳳凰翼)
+      // 3. Search Blades (Matches "子彈獅鷲", "黑龜", "鳳凰翼")
       Object.keys(BEY_DB.blades).forEach(key => {
         const blade = BEY_DB.blades[key];
         if (norm(key).includes(q) || norm(blade.name).includes(q) || norm(blade.code).includes(q)) {
@@ -668,9 +710,17 @@
         }
       });
 
-      // Filter unique
+      // 4. Search Bits (e.g., Hexa, Dot, Flat)
+      Object.keys(BEY_DB.bits).forEach(key => {
+        const b = BEY_DB.bits[key];
+        if (norm(key).includes(q) || norm(b.name).includes(q)) {
+          matches.push({ title: `Bit: ${b.name}`, code: key.toUpperCase(), type: '軸心部件' });
+        }
+      });
+
+      // De-duplicate matches
       const uniqueMatches = Array.from(new Set(matches.map(a => a.title)))
-        .map(title => matches.find(a => a.title === title)).slice(0, 6);
+        .map(title => matches.find(a => a.title === title)).slice(0, 7);
 
       if (uniqueMatches.length > 0) {
         suggestionsBox.innerHTML = uniqueMatches.map(m => `
@@ -703,7 +753,7 @@
     });
 
     /* ==========================================================================
-       3. Main Search Engine with Flexible Normalization
+       3. Main Search Engine
        ========================================================================== */
     function handleSearch() {
       const q = norm(searchInput.value);
@@ -719,20 +769,23 @@
         }
       }
 
-      // 2. Search Combos / Standard Product Codes (e.g. BX-35, UX-03, BX-23)
+      // 2. Search Combos / Products (e.g. UX-19, BX-35, UX-03)
       for (let key in BEY_DB.combos) {
-        if (norm(key).includes(q) || q.includes(norm(key)) || norm(BEY_DB.combos[key].name).includes(q)) {
-          const combo = BEY_DB.combos[key];
+        const combo = BEY_DB.combos[key];
+        if (norm(key).includes(q) || q.includes(norm(key)) || norm(combo.name).includes(q) || norm(combo.blade).includes(q)) {
           renderSingleBeyAnalysis(combo.blade, combo.ratchet, combo.bit, combo.name, combo.code);
           return;
         }
       }
 
-      // 3. Search Individual Blades (e.g. "黑龜", "Black Shell", "鳳凰翼")
+      // 3. Search Individual Blades (e.g. "子彈", "獅鷲", "黑龜", "鳳凰翼")
       for (let key in BEY_DB.blades) {
         const bladeObj = BEY_DB.blades[key];
         if (norm(key).includes(q) || norm(bladeObj.name).includes(q) || norm(bladeObj.code).includes(q)) {
-          renderSingleBeyAnalysis(key, "4-60", "d", `${bladeObj.name} 分析`, bladeObj.code || "BX/UX");
+          // Default matching ratchet/bit
+          const defaultRatchet = key === "bullet griffon" ? "4-60" : "9-60";
+          const defaultBit = key === "bullet griffon" ? "h" : "d";
+          renderSingleBeyAnalysis(key, defaultRatchet, defaultBit, `${bladeObj.name} 分析`, bladeObj.code || "BX/UX");
           return;
         }
       }
@@ -777,33 +830,34 @@
       `;
     }
 
-    // Render Single Bey Analysis
+    // Render Single Bey Analysis Dashboard
     function renderSingleBeyAnalysis(bladeKey, ratchetKey, bitKey, customTitle = "", productCode = "BX/UX") {
-      const blade = BEY_DB.blades[bladeKey] || BEY_DB.blades["black shell"];
+      const blade = BEY_DB.blades[bladeKey] || BEY_DB.blades["bullet griffon"];
       const ratchet = BEY_DB.ratchets[ratchetKey] || BEY_DB.ratchets["4-60"];
-      const bit = BEY_DB.bits[bitKey] || BEY_DB.bits["d"];
+      const bit = BEY_DB.bits[bitKey] || BEY_DB.bits["h"];
 
       const title = customTitle || `${blade.name} ${ratchet.name} ${bit.name.split(' ')[0]}`;
 
-      // AI Logic
-      const isAttack = bit.type.includes("攻擊");
+      // AI Logic evaluation
+      const isSpecialGimmick = bladeKey === "bullet griffon";
+      const isAttack = bit.type.includes("攻擊") || isSpecialGimmick;
       const isDefense = bit.type.includes("防禦");
 
       const pros = [];
       const cons = [];
 
-      if (isDefense) {
+      if (isSpecialGimmick) {
+        pros.push("獨家『雙體分離 (Split) 機構』，受撞擊後子彈零件可脫離干擾對手戰線。");
+        pros.push("搭配 Hexa (H) 六角形軸心，具備極佳的自重立直能力與高支撐防護。");
+        cons.push("零件脫離後的本體重量會減輕，需注意戰局後期的被飛撞風險。");
+        cons.push("對發射力道控制要求較高，過度用力可能導致提前分離。");
+      } else if (isDefense) {
         pros.push("圓滑低阻力 Blade 與重腰身棘輪，能有效吸收外場猛烈衝撞。");
         pros.push(`搭配 ${bit.name} 軸心，受撞擊後傾斜角度能快速彈回戰鬥盤中心。`);
         cons.push("面對頂級持久型 (如 Wizard Rod DB) 於戰局後段轉速表現略遜一籌。");
-        cons.push("反擊爆發力較弱，主要依賴減震防守贏得點數。");
-      } else if (isAttack) {
-        pros.push("具備極速 X-Dash 衝刺能力，首波外場 KO (Over Finish) 率高。");
-        pros.push(`配合 ${blade.name.split(' ')[0]} 的重型金屬刃，撞擊爆發力極高。`);
-        cons.push("戰局中後期持久力衰減極快。");
       } else {
-        pros.push("戰術性能極度穩定，抗打擊與持久力均衡。");
-        cons.push("無特別突出爆發一擊能力。");
+        pros.push("具備高速 X-Dash 衝刺能力與優良第一波撞擊力。");
+        cons.push("戰局中後期持久力衰減較快。");
       }
 
       const output = document.getElementById('outputContainer');
@@ -816,13 +870,13 @@
               <h2>${title}</h2>
             </div>
             <div class="specs-pills">
-              <div class="pill">預估總重: <span>~${(parseFloat(blade.weight) + 6.2 + 2.1).toFixed(1)}g</span></div>
+              <div class="pill">預估總重: <span>~${(parseFloat(blade.weight) + 6.2 + 2.3).toFixed(1)}g</span></div>
               <div class="pill">迴旋方向: <span>${blade.spin}</span></div>
             </div>
           </div>
 
           <!-- Section 1: Parts Disassembly -->
-          <div class="section-title">⚡ 1. 配件拆解與規格 (Hinfok BeyDB 數據參照)</div>
+          <div class="section-title">⚡ 1. 配件拆解與規格 (跨庫參照數據)</div>
           <div class="parts-grid">
             <div class="part-box">
               <div class="part-type">Blade (攻擊環/刃)</div>
@@ -875,13 +929,13 @@
           <div class="tactics-box">
             <div class="section-title">🎯 2. AI 發射戰術建議 (Launch Tactics)</div>
             <p style="font-size: 0.95rem; line-height: 1.5; color: #e2e8f0;">
-              ${isDefense 
-                ? '建議採用 <b>0° 絕對垂直穩定發射</b>，力道維持在 <b>85%~90%</b>。發射落點選擇戰鬥盤中央，讓 D (Dot) 軸心迅速著地定點，發揮下勾角度吸收首波強力衝刺。' 
-                : '建議採用 <b>15° 傾斜角度發射</b>，配合拉線爆發力衝刺。'}
+              ${isSpecialGimmick 
+                ? '建議採用 <b>5°~10° 微切角角度發射</b>，力道維持在 <b>90%~95%</b>。利用 Bullet 構造在碰撞瞬間產生雙體分離效果，製造對手干擾並保持中心自重立直。' 
+                : '建議採用 <b>0°~5° 垂直穩定發射</b>，維持 <b>85%~90%</b> 拉線力道，搶佔戰鬥盤中心。'}
             </p>
             <div class="tactics-meta">
-              <div class="tactic-tag">建議力道: <b>${isDefense ? '85% 穩定控制' : '100% 強力拉線'}</b></div>
-              <div class="tactic-tag">發射角度: <b>${isDefense ? '90° 垂直落點' : '15° 傾斜切入'}</b></div>
+              <div class="tactic-tag">建議力道: <b>90% 戰術控制</b></div>
+              <div class="tactic-tag">發射角度: <b>10° 斜切落點</b></div>
             </div>
           </div>
 
@@ -894,17 +948,26 @@
                   <span class="counter-item-name">Wizard Rod 9-60 DB</span>
                   <span style="font-size:0.8rem; color:var(--text-muted);"> (頂級持久抗衡)</span>
                 </div>
-                <span style="color:var(--neon-green); font-size:0.85rem; font-weight:bold;">勝率預估 62%</span>
+                <span style="color:var(--neon-green); font-size:0.85rem; font-weight:bold;">勝率預估 60%</span>
+              </div>
+              <div class="counter-item">
+                <div>
+                  <span class="counter-item-name">Phoenix Wing 9-60 GF</span>
+                  <span style="font-size:0.8rem; color:var(--text-muted);"> (重型正面衝撞)</span>
+                </div>
+                <span style="color:var(--neon-green); font-size:0.85rem; font-weight:bold;">勝率預估 55%</span>
               </div>
             </div>
           </div>
 
-          <!-- Hinfok BeyDB Citation -->
-          <div class="beydb-cite-card">
-            <p>數據與組件拆解嚴格參照 Hinfok BeyDB 官方數據庫庫存紀錄。</p>
-            <a href="https://beys.hinfok.com/" target="_blank" class="beydb-btn">
-              🌐 前往 Hinfok BeyDB 官網查看完整原廠數據
-            </a>
+          <!-- Multi-DB Citation Banner -->
+          <div class="db-citation-section">
+            <p>本陀螺數據與分析綜合參照以下三大權威 Beyblade X 資料庫：</p>
+            <div class="db-links-group">
+              <a href="https://beys.hinfok.com/" target="_blank" class="db-btn">🌐 Hinfok BeyDB 官網</a>
+              <a href="https://go-shoot.github.io/x/" target="_blank" class="db-btn btn-goshoot">🎯 Go-Shoot 陀螺庫</a>
+              <a href="https://beyblade.phstudy.org/index.html" target="_blank" class="db-btn btn-phstudy">📊 PHStudy 戰術庫</a>
+            </div>
           </div>
         </div>
       `;
@@ -917,13 +980,15 @@
         <div class="not-found-card">
           <h3>⚠️ 未找到匹配的陀螺或部件數據</h3>
           <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-            請嘗試輸入標準編號（如 UX-15, BX-35, UX-03）或熱門名稱（如 黑龜, 鳳凰翼, Wizard Rod）。
+            請嘗試輸入標準編號（如 UX-19, UX-15, BX-35）或熱門名稱（如 子彈, 獅鷲, 黑龜, 鳳凰翼）。
           </p>
-          <div class="beydb-cite-card" style="max-width: 400px; margin: 0 auto;">
-            <p>找不到想要的資料？直接前往 Hinfok BeyDB 尋找最新陀螺數據：</p>
-            <a href="https://beys.hinfok.com/" target="_blank" class="beydb-btn">
-              🔗 開啟 Hinfok BeyDB 資料庫
-            </a>
+          <div class="db-citation-section" style="max-width: 500px; margin: 0 auto;">
+            <p>您可以前往三大權威 Beyblade X 資料庫進行深層檢索：</p>
+            <div class="db-links-group">
+              <a href="https://beys.hinfok.com/" target="_blank" class="db-btn">Hinfok BeyDB</a>
+              <a href="https://go-shoot.github.io/x/" target="_blank" class="db-btn btn-goshoot">Go-Shoot DB</a>
+              <a href="https://beyblade.phstudy.org/index.html" target="_blank" class="db-btn btn-phstudy">PHStudy 資料庫</a>
+            </div>
           </div>
         </div>
       `;
@@ -931,7 +996,7 @@
 
     // Default view on load
     window.addEventListener('DOMContentLoaded', () => {
-      quickSelect('BX-35');
+      quickSelect('UX-19');
     });
   </script>
 </body>
