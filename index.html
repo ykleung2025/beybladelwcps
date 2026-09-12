@@ -619,28 +619,6 @@
       margin-bottom: 24px;
     }
 
-    .db-citation-section {
-      background: rgba(157, 78, 221, 0.08);
-      border: 1.5px dashed var(--neon-purple);
-      border-radius: 14px;
-      padding: 18px;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .db-btn {
-      display: inline-block;
-      padding: 8px 16px;
-      background: rgba(0, 240, 255, 0.15);
-      border: 1px solid var(--primary-cyan);
-      color: var(--primary-cyan);
-      font-weight: bold;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-top: 8px;
-    }
-
     @media (max-width: 600px) {
       h1 { font-size: 1.4rem; }
       .search-box-wrapper { flex-direction: column; }
@@ -654,11 +632,11 @@
   <div class="app-container">
     <header>
       <div class="header-top-row">
-        <div class="logo-badge">BEYBLADE X AI COACH v3.0</div>
+        <div class="logo-badge">BEYBLADE X AI COACH v3.2</div>
         <button class="score-counter-trigger-btn" onclick="openScoreboard()">🏆 開啟對戰計分器</button>
       </div>
       <h1>爆旋陀螺 X 專業對戰教練</h1>
-      <p class="subtitle">整合 PHStudy 資料庫 + 官方賽制對戰計分器 + YouTube / Threads 熱門陀螺情報</p>
+      <p class="subtitle">整合 PHStudy + Hinfok 陀螺數據庫 + 官方賽制對戰計分器 + 社群熱門情報</p>
     </header>
 
     <!-- Search Section -->
@@ -668,7 +646,7 @@
           <input 
             type="text" 
             id="searchInput" 
-            placeholder="輸入產品編號 (BX-01, UX-03)、全名 (魔杖 9-60 B) 或 Threads 話題關鍵字..."
+            placeholder="輸入型號(BX-01, UX-03)、名稱(魔杖, 鳳凰, 藍龍, 960B) 模糊搜尋..."
             autocomplete="off"
           />
           <div id="suggestions" class="suggestions-dropdown"></div>
@@ -712,7 +690,8 @@
     <footer style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 10px;">
       數據與規則依據：
       <a href="https://beybladehub.app/guide/rules" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">BeybladeHub 官方賽制規則</a> | 
-      <a href="https://beyblade.phstudy.org/index.html" target="_blank" style="color: #d8b4fe; text-decoration: underline;">PHStudy 陀螺資料庫</a>
+      <a href="https://beyblade.phstudy.org/index.html" target="_blank" style="color: #d8b4fe; text-decoration: underline;">PHStudy 陀螺資料庫</a> | 
+      <a href="https://beys.hinfok.com" target="_blank" style="color: #60a5fa; text-decoration: underline;">Hinfok 陀螺數據庫</a>
     </footer>
   </div>
 
@@ -897,33 +876,33 @@
     }
 
     /* ==========================================================================
-       3. Beyblade Database & Analyzer Engine
+       3. Enhanced Beyblade Database (PHStudy + Hinfok) & Advanced Fuzzy Search Engine
        ========================================================================== */
     const BEY_DB = {
       blades: {
-        "dran sword": { name: "蒼龍劍 (Dran Sword)", code: "BX-01", weight: "35.0g", spin: "右迴旋 (Right)", desc: "經典三尖巨刃攻擊Blade，具備極佳的急加速衝撞力與爆裂打擊感。" },
-        "hells scythe": { name: "地獄鐮刀 (Hells Scythe)", code: "BX-02", weight: "32.8g", spin: "右迴旋 (Right)", desc: "四段式鐮刀型平衡Blade，兼具連續切削攻擊與穩定防禦迴轉。" },
-        "wizard arrow": { name: "嚮導箭矢 (Wizard Arrow)", code: "BX-03", weight: "32.0g", spin: "右迴旋 (Right)", desc: "外圍雙重圓弧刃，離心力優良，提供持續穩定的旋轉時間。" },
-        "phoenix wing": { name: "鳳凰翼 (Phoenix Wing)", code: "BX-23", weight: "38.2g", spin: "右迴旋 (Right)", desc: "超重量級塗裝金屬刃，擁有一擊必殺的頂級碰撞打擊力。" },
-        "dran buster": { name: "爆裂蒼龍 (Dran Buster)", code: "UX-01", weight: "37.5g", spin: "右迴旋 (Right)", desc: "特化單點巨刃攻擊，能配合極短 X-Dash 衝刺造成瞬間外場打擊。" },
-        "wizard rod": { name: "嚮導魔杖 (Wizard Rod)", code: "UX-03", weight: "35.8g", spin: "右迴旋 (Right)", desc: "外圍極致離心力設計，當前環境 T0 級別，防禦與抗爆裂表現極佳。" },
-        "tyranno beat": { name: "暴龍擊打 (Tyranno Beat)", code: "UX-04", weight: "37.2g", spin: "右迴旋 (Right)", desc: "不規則厚重打擊面，能干擾破壞對手的旋轉軸心。" },
-        "bullet griffon": { name: "子彈獅鷲 (Bullet Griffon)", code: "UX-19", weight: "36.8g", spin: "右迴旋 (Right)", desc: "UX-19 雙體分離式特殊攻擊Blade，遭受撞擊時頂層子彈可脫離獨立運作。" }
+        "dran sword": { name: "蒼龍劍 (Dran Sword)", code: "BX-01", weight: "35.0g", spin: "右迴旋 (Right)", desc: "經典三尖巨刃攻擊Blade，具備極佳的急加速衝撞力與爆裂打擊感。", aliases: ["蒼龍", "藍龍", "dransword", "bx01", "bx-01"] },
+        "hells scythe": { name: "地獄鐮刀 (Hells Scythe)", code: "BX-02", weight: "32.8g", spin: "右迴旋 (Right)", desc: "四段式鐮刀型平衡Blade，兼具連續切削攻擊與穩定防禦迴轉。", aliases: ["地獄鐮刀", "鐮刀", "hellsscythe", "bx02", "bx-02"] },
+        "wizard arrow": { name: "嚮導箭矢 (Wizard Arrow)", code: "BX-03", weight: "32.0g", spin: "右迴旋 (Right)", desc: "外圍雙重圓弧刃，離心力優良，提供持續穩定的旋轉時間。", aliases: ["箭矢", "wizardarrow", "bx03", "bx-03"] },
+        "phoenix wing": { name: "鳳凰翼 (Phoenix Wing)", code: "BX-23", weight: "38.2g", spin: "右迴旋 (Right)", desc: "超重量級塗裝金屬刃，擁有一擊必殺的頂級碰撞打擊力。", aliases: ["鳳凰", "紅鳳凰", "鳳凰翼", "phoenixwing", "bx23", "bx-23"] },
+        "dran buster": { name: "爆裂蒼龍 (Dran Buster)", code: "UX-01", weight: "37.5g", spin: "右迴旋 (Right)", desc: "特化單點巨刃攻擊，能配合極短 X-Dash 衝刺造成瞬間外場打擊。", aliases: ["爆裂蒼龍", "爆裂龍", "dranbuster", "ux01", "ux-01"] },
+        "wizard rod": { name: "嚮導魔杖 (Wizard Rod)", code: "UX-03", weight: "35.8g", spin: "右迴旋 (Right)", desc: "外圍極致離心力設計，當前環境 T0 級別，防禦與抗爆裂表現極佳。", aliases: ["魔杖", "嚮導魔杖", "rod", "wizardrod", "ux03", "ux-03"] },
+        "tyranno beat": { name: "暴龍擊打 (Tyranno Beat)", code: "UX-04", weight: "37.2g", spin: "右迴旋 (Right)", desc: "不規則厚重打擊面，能干擾破壞對手的旋轉軸心。", aliases: ["暴龍", "暴龍擊打", "tyrannobeat", "ux04", "ux-04"] },
+        "bullet griffon": { name: "子彈獅鷲 (Bullet Griffon)", code: "UX-19", weight: "36.8g", spin: "右迴旋 (Right)", desc: "UX-19 雙體分離式特殊攻擊Blade，遭受撞擊時頂層子彈可脫離獨立運作。", aliases: ["子彈獅鷲", "獅鷲", "子彈", "bulletgriffon", "ux19", "ux-19"] }
       },
       ratchets: {
-        "3-60": { name: "3-60", height: "6.0mm", teeth: "3齒", burstRisk: "低 (Low)", desc: "經典三角棘輪，配合三刃 Blade 集中爆發力。" },
-        "4-60": { name: "4-60", height: "6.0mm", teeth: "4齒", burstRisk: "低 (Low)", desc: "四角平均分佈中軸，具備高重心安定性與防爆裂抗性。" },
-        "5-60": { name: "5-60", height: "6.0mm", teeth: "5齒", burstRisk: "低 (Low)", desc: "五角圓潤防衛型棘輪，通用度極高。" },
-        "9-60": { name: "9-60", height: "6.0mm", teeth: "9齒", burstRisk: "極低 (Very Low)", desc: "9齒圓滑高密度結構，提供頂級爆裂抵抗力。" },
-        "5-70": { name: "5-70", height: "7.0mm", teeth: "5齒", burstRisk: "低 (Low)", desc: "高重心平衡棘輪，維持高迴旋安定。" }
+        "3-60": { name: "3-60", height: "6.0mm", teeth: "3齒", burstRisk: "低 (Low)", desc: "經典三角棘輪，配合三刃 Blade 集中爆發力。", aliases: ["360", "3-60"] },
+        "4-60": { name: "4-60", height: "6.0mm", teeth: "4齒", burstRisk: "低 (Low)", desc: "四角平均分佈中軸，具備高重心安定性與防爆裂抗性。", aliases: ["460", "4-60"] },
+        "5-60": { name: "5-60", height: "6.0mm", teeth: "5齒", burstRisk: "低 (Low)", desc: "五角圓潤防衛型棘輪，通用度極高。", aliases: ["560", "5-60"] },
+        "9-60": { name: "9-60", height: "6.0mm", teeth: "9齒", burstRisk: "極低 (Very Low)", desc: "9齒圓滑高密度結構，提供頂級爆裂抵抗力。", aliases: ["960", "9-60"] },
+        "5-70": { name: "5-70", height: "7.0mm", teeth: "5齒", burstRisk: "低 (Low)", desc: "高重心平衡棘輪，維持高迴旋安定。", aliases: ["570", "5-70"] }
       },
       bits: {
-        "f": { name: "F (Flat)", type: "攻擊型", dash: "S級", stamina: "C級", desc: "標準平軸，啟動強勁的 X-Dash 衝刺打擊。" },
-        "b": { name: "B (Ball)", type: "持久型", dash: "C級", stamina: "S級", desc: "球形軸心，減少地面摩擦，受撞擊後迅速回復中心。" },
-        "p": { name: "P (Point)", type: "平衡型", dash: "B級", stamina: "B級", desc: "微凸平軸，平時保持中心，傾斜時發動衝刺。" },
-        "h": { name: "H (Hexa)", type: "平衡重裝型", dash: "A級", stamina: "A級", desc: "六角形微凸起尖軸，具高支撐力與立直特性。" },
-        "gf": { name: "GF (Gear Flat)", type: "極限攻擊型", dash: "SS級", stamina: "D級", desc: "全齒平軸，產生全場超高速 X-Dash 衝刺。" },
-        "db": { name: "DB (Disc Ball)", type: "頂級持久型", dash: "B級", stamina: "SS級", desc: "外圍飛輪圓軸，保持戰場中心極度穩定。" }
+        "f": { name: "F (Flat)", type: "攻擊型", dash: "S級", stamina: "C級", desc: "標準平軸，啟動強勁的 X-Dash 衝刺打擊。", aliases: ["f", "flat"] },
+        "b": { name: "B (Ball)", type: "持久型", dash: "C級", stamina: "S級", desc: "球形軸心，減少地面摩擦，受撞擊後迅速回復中心。", aliases: ["b", "ball"] },
+        "p": { name: "P (Point)", type: "平衡型", dash: "B級", stamina: "B級", desc: "微凸平軸，平時保持中心，傾斜時發動衝刺。", aliases: ["p", "point"] },
+        "h": { name: "H (Hexa)", type: "平衡重裝型", dash: "A級", stamina: "A級", desc: "六角形微凸起尖軸，具高支撐力與立直特性。", aliases: ["h", "hexa"] },
+        "gf": { name: "GF (Gear Flat)", type: "極限攻擊型", dash: "SS級", stamina: "D級", desc: "全齒平軸，產生全場超高速 X-Dash 衝刺。", aliases: ["gf", "gearflat"] },
+        "db": { name: "DB (Disc Ball)", type: "頂級持久型", dash: "B級", stamina: "SS級", desc: "外圍飛輪圓軸，保持戰場中心極度穩定。", aliases: ["db", "discball"] }
       },
       products: {
         "BX-01": { name: "蒼龍劍 3-60F (Dran Sword 3-60F)", blade: "dran sword", ratchet: "3-60", bit: "f" },
@@ -934,31 +913,126 @@
       }
     };
 
+    /* Helper: General Normalizer */
     function norm(str) {
       if (!str) return '';
       return str.toString().toLowerCase().replace(/[-\s\(\)]/g, '');
     }
 
+    /* Advanced Fuzzy Token Matcher */
+    function calculateFuzzyScore(rawQuery, candidateText, candidateAliases = []) {
+      const qNorm = norm(rawQuery);
+      if (!qNorm) return 0;
+
+      const candNorm = norm(candidateText);
+      let score = 0;
+
+      // 完全或包含匹配
+      if (candNorm === qNorm) score += 100;
+      else if (candNorm.includes(qNorm)) score += 50;
+
+      // 同義詞別名模糊比對
+      candidateAliases.forEach(alias => {
+        const aNorm = norm(alias);
+        if (aNorm === qNorm) score += 90;
+        else if (aNorm.includes(qNorm) || qNorm.includes(aNorm)) score += 40;
+      });
+
+      // Token 逐字模糊打分
+      const tokens = rawQuery.toLowerCase().trim().split(/[\s\-]+/);
+      tokens.forEach(token => {
+        if (!token) return;
+        const tNorm = norm(token);
+        if (candNorm.includes(tNorm)) score += 15;
+        candidateAliases.forEach(alias => {
+          if (norm(alias).includes(tNorm)) score += 12;
+        });
+      });
+
+      return score;
+    }
+
+    /* Multi-Component Parser (Handles queries like "魔杖 960 B", "ux3 9-60 b", "鳳凰翼 gf") */
+    function parseComboQuery(query) {
+      const qNorm = norm(query);
+      let detectedBlade = null;
+      let detectedRatchet = null;
+      let detectedBit = null;
+
+      // Match Blade
+      let bestBladeScore = 0;
+      Object.keys(BEY_DB.blades).forEach(key => {
+        const b = BEY_DB.blades[key];
+        const s = calculateFuzzyScore(query, b.name + ' ' + b.code, b.aliases);
+        if (s > bestBladeScore) {
+          bestBladeScore = s;
+          detectedBlade = key;
+        }
+      });
+
+      // Match Ratchet
+      Object.keys(BEY_DB.ratchets).forEach(key => {
+        const r = BEY_DB.ratchets[key];
+        r.aliases.forEach(al => {
+          if (qNorm.includes(norm(al))) detectedRatchet = key;
+        });
+      });
+
+      // Match Bit
+      Object.keys(BEY_DB.bits).forEach(key => {
+        const bit = BEY_DB.bits[key];
+        bit.aliases.forEach(al => {
+          if (qNorm.includes(norm(al))) detectedBit = key;
+        });
+      });
+
+      return {
+        blade: detectedBlade || "wizard rod",
+        ratchet: detectedRatchet || "9-60",
+        bit: detectedBit || "b",
+        confidence: bestBladeScore
+      };
+    }
+
     const searchInput = document.getElementById('searchInput');
     const suggestionsBox = document.getElementById('suggestions');
 
+    /* Enhanced Real-time Suggestions listener */
     searchInput.addEventListener('input', function() {
-      const q = norm(this.value);
-      if (!q) { suggestionsBox.style.display = 'none'; return; }
+      const query = this.value;
+      const qNorm = norm(query);
+      if (!qNorm) { suggestionsBox.style.display = 'none'; return; }
 
       let matches = [];
+
+      // 1. Search products
       Object.keys(BEY_DB.products).forEach(code => {
         const p = BEY_DB.products[code];
-        if (norm(code).includes(q) || norm(p.name).includes(q)) {
-          matches.push({ title: `[${code}] ${p.name}`, code: code, type: '官方型號' });
+        const score = calculateFuzzyScore(query, code + ' ' + p.name, [p.blade, p.ratchet, p.bit]);
+        if (score > 10) {
+          matches.push({ title: `[${code}] ${p.name}`, code: code, type: 'Hinfok/PHStudy 型號', score: score });
         }
       });
 
-      TRENDING_TOPICS.forEach(item => {
-        if (norm(item.title).includes(q) || norm(item.desc).includes(q)) {
-          matches.push({ title: item.title, code: item.query, type: item.platformName });
+      // 2. Search Blades
+      Object.keys(BEY_DB.blades).forEach(key => {
+        const b = BEY_DB.blades[key];
+        const score = calculateFuzzyScore(query, b.name + ' ' + (b.code || ''), b.aliases);
+        if (score > 10) {
+          matches.push({ title: `${b.name} (${b.code || 'Blade'})`, code: b.name, type: '單體組件', score: score });
         }
       });
+
+      // 3. Search Trending Topics
+      TRENDING_TOPICS.forEach(item => {
+        const score = calculateFuzzyScore(query, item.title + ' ' + item.desc, [item.query, item.blade]);
+        if (score > 10) {
+          matches.push({ title: item.title, code: item.query, type: item.platformName, score: score });
+        }
+      });
+
+      // Sort by Fuzzy Match Score
+      matches.sort((a, b) => b.score - a.score);
 
       const uniqueMatches = Array.from(new Set(matches.map(a => a.title)))
         .map(title => matches.find(a => a.title === title)).slice(0, 6);
@@ -988,27 +1062,26 @@
     }
 
     function handleSearch() {
-      const q = norm(searchInput.value);
+      const query = searchInput.value;
+      const qNorm = norm(query);
       suggestionsBox.style.display = 'none';
-      if (!q) return;
+      if (!qNorm) return;
 
+      // Direct Product Match Check
       for (let code in BEY_DB.products) {
         const p = BEY_DB.products[code];
-        if (norm(code) === q || norm(p.name).includes(q) || q.includes(norm(code))) {
+        if (norm(code) === qNorm || norm(p.name).includes(qNorm)) {
           renderSingleBeyAnalysis(p.blade, p.ratchet, p.bit, p.name, code);
           return;
         }
       }
 
-      for (let key in BEY_DB.blades) {
-        const b = BEY_DB.blades[key];
-        if (norm(key).includes(q) || norm(b.name).includes(q)) {
-          renderSingleBeyAnalysis(key, "9-60", "b", `${b.name} 經典配置`, b.code || "BX/UX");
-          return;
-        }
-      }
-
-      renderSingleBeyAnalysis("wizard rod", "9-60", "b", searchInput.value, "Threads/搜尋結果");
+      // Dynamic Intelligent Fuzzy Combo Matching (Hinfok & PHStudy Cross Search)
+      const combo = parseComboQuery(query);
+      const bladeObj = BEY_DB.blades[combo.blade];
+      const title = `${bladeObj.name} ${combo.ratchet.toUpperCase()} ${combo.bit.toUpperCase()}`;
+      
+      renderSingleBeyAnalysis(combo.blade, combo.ratchet, combo.bit, title, bladeObj.code || "Hinfok/PHStudy Search");
     }
 
     function renderSingleBeyAnalysis(bladeKey, ratchetKey, bitKey, customTitle = "", productCode = "BX/UX") {
@@ -1032,7 +1105,7 @@
             </div>
           </div>
 
-          <div class="section-title">🧩 1. 三大配件拆解 (PHStudy 對照)</div>
+          <div class="section-title">🧩 1. 三大配件拆解 (PHStudy & Hinfok 資料庫同步)</div>
           <div class="parts-grid">
             <div class="part-box">
               <div class="part-type">① Blade (攻擊環)</div>
